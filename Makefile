@@ -46,19 +46,19 @@ work/vibrato/ipadic-mecab-2_7_0/system.dic: work/vibrato/ipadic-mecab-2_7_0.tar.
 	mkdir -p work/vibrato/
 	tar -xmzf work/vibrato/ipadic-mecab-2_7_0.tar.gz -C work/vibrato/
 
-work/jawiki/vibrato-ipadic/_SUCCESS: src/subcmd/tokenize.rs mecab-user-dict.csv src/corpus_reader/wikipedia_extracted.rs work/jawiki/extracted/_SUCCESS work/vibrato/ipadic-mecab-2_7_0/system.dic
-	cargo run --release -- tokenize-vibrato-ipadic --user-dict=mecab-user-dict.csv work/vibrato/ipadic-mecab-2_7_0/system.dic work/jawiki/extracted work/jawiki/vibrato-ipadic/ -vvv
+work/jawiki/vibrato-ipadic/_SUCCESS: mecab-user-dict.csv work/jawiki/extracted/_SUCCESS work/vibrato/ipadic-mecab-2_7_0/system.dic
+	akaza-data tokenize-vibrato-ipadic --user-dict=mecab-user-dict.csv work/vibrato/ipadic-mecab-2_7_0/system.dic work/jawiki/extracted work/jawiki/vibrato-ipadic/ -vvv
 
-work/aozora_bunko/vibrato-ipadic/_SUCCESS: src/corpus_reader/aozora_bunko.rs work/vibrato/ipadic-mecab-2_7_0/system.dic
-	cargo run --release -- tokenize-aozora-bunko-vibrato-ipadic work/vibrato/ipadic-mecab-2_7_0/system.dic aozorabunko_text/cards/ work/aozora_bunko/vibrato-ipadic/ -vv
+work/aozora_bunko/vibrato-ipadic/_SUCCESS: work/vibrato/ipadic-mecab-2_7_0/system.dic
+	akaza-data tokenize-aozora-bunko-vibrato-ipadic work/vibrato/ipadic-mecab-2_7_0/system.dic aozorabunko_text/cards/ work/aozora_bunko/vibrato-ipadic/ -vv
 
-work/vibrato-ipadic.wfreq: work/jawiki/vibrato-ipadic/_SUCCESS src/subcmd/wfreq.rs work/aozora_bunko/vibrato-ipadic/_SUCCESS
-	cargo run --release -- wfreq work/jawiki/vibrato-ipadic/ work/aozora_bunko/vibrato-ipadic/ corpus/ work/vibrato-ipadic.wfreq -vvv
+work/vibrato-ipadic.wfreq: work/jawiki/vibrato-ipadic/_SUCCESS work/aozora_bunko/vibrato-ipadic/_SUCCESS
+	akaza-data wfreq work/jawiki/vibrato-ipadic/ work/aozora_bunko/vibrato-ipadic/ corpus/ work/vibrato-ipadic.wfreq -vvv
 
 # threshold が 16 なのはヒューリスティックなパラメータ設定による。
 # vocab ファイルを作る意味は、辞書の作成のためだけなので、わざわざ作らなくてもよいかもしれない。
-work/vibrato-ipadic.vocab: work/vibrato-ipadic.wfreq src/subcmd/vocab.rs
-	cargo run --release -- vocab --threshold 16 work/vibrato-ipadic.wfreq work/vibrato-ipadic.vocab -vvv
+work/vibrato-ipadic.vocab: work/vibrato-ipadic.wfreq
+	akaza-data vocab --threshold 16 work/vibrato-ipadic.wfreq work/vibrato-ipadic.vocab -vvv
 
 
 # -------------------------------------------------------------------------
@@ -66,16 +66,16 @@ work/vibrato-ipadic.vocab: work/vibrato-ipadic.wfreq src/subcmd/vocab.rs
 # 統計的仮名かな漢字変換のためのモデル作成処理
 
 work/stats-vibrato-unigram.wordcnt.trie: work/vibrato-ipadic.wfreq
-	cargo run --release -- make-stats-system-unigram-lm work/vibrato-ipadic.wfreq work/stats-vibrato-unigram.wordcnt.trie
+	akaza-data make-stats-system-unigram-lm work/vibrato-ipadic.wfreq work/stats-vibrato-unigram.wordcnt.trie
 
-work/stats-vibrato-bigram.wordcnt.trie: work/stats-vibrato-unigram.wordcnt.trie work/stats-vibrato-unigram.wordcnt.trie src/subcmd/make_stats_system_bigram_lm.rs work/aozora_bunko/vibrato-ipadic/_SUCCESS
-	cargo run --release -- make-stats-system-bigram-lm --threshold=3 \
+work/stats-vibrato-bigram.wordcnt.trie: work/stats-vibrato-unigram.wordcnt.trie work/stats-vibrato-unigram.wordcnt.trie work/aozora_bunko/vibrato-ipadic/_SUCCESS
+	akaza-data make-stats-system-bigram-lm --threshold=3 \
 		--corpus-dirs work/jawiki/vibrato-ipadic/ \
 		--corpus-dirs work/aozora_bunko/vibrato-ipadic/ \
 		work/stats-vibrato-unigram.wordcnt.trie work/stats-vibrato-bigram.wordcnt.trie
 
-data/bigram.model: work/stats-vibrato-bigram.wordcnt.trie work/stats-vibrato-unigram.wordcnt.trie src/subcmd/learn_corpus.rs corpus/must.txt corpus/should.txt corpus/may.txt data/SKK-JISYO.akaza
-	cargo run --release -- learn-corpus \
+data/bigram.model: work/stats-vibrato-bigram.wordcnt.trie work/stats-vibrato-unigram.wordcnt.trie corpus/must.txt corpus/should.txt corpus/may.txt data/SKK-JISYO.akaza
+	akaza-data learn-corpus \
 		--delta=2000 \
 		--may-epochs=10 \
 		--should-epochs=100 \
@@ -94,8 +94,8 @@ data/unigram.model: data/bigram.model
 # システム辞書の構築。dict/SKK-JISYO.akaza、コーパスに書かれている語彙および work/vibrato-ipadic.vocab にある語彙。
 # から、SKK-JISYO.L に含まれる語彙を除いたものが登録されている。
 
-data/SKK-JISYO.akaza: work/vibrato-ipadic.vocab dict/SKK-JISYO.akaza src/subcmd/make_dict.rs  corpus/must.txt corpus/should.txt corpus/may.txt work/unidic/lex_3_1.csv
-	cargo run --release -- make-system-dict \
+data/SKK-JISYO.akaza: work/vibrato-ipadic.vocab dict/SKK-JISYO.akaza  corpus/must.txt corpus/should.txt corpus/may.txt work/unidic/lex_3_1.csv
+	akaza-data make-system-dict \
 		--corpus corpus/must.txt \
 		--corpus corpus/should.txt \
 		--corpus corpus/may.txt \
@@ -107,13 +107,14 @@ data/SKK-JISYO.akaza: work/vibrato-ipadic.vocab dict/SKK-JISYO.akaza src/subcmd/
 # -------------------------------------------------------------------------
 
 evaluate: data/bigram.model
-	AKAZA_KEYMAP_DIR=../keymap/ AKAZA_ROMKAN_DIR=../romkan/ AKAZA_DATA_DIR=data/ cargo run --release evaluate anthy-corpus -v
+	AKAZA_KEYMAP_DIR=../keymap/ AKAZA_ROMKAN_DIR=../romkan/ AKAZA_DATA_DIR=data/ akaza-data evaluate anthy-corpus -v
 
 # -------------------------------------------------------------------------
 
 install:
-	install -m 0755 -d $(DESTDIR)$(DATADIR)/akaza-data
-	install -m 0644 data/*.trie $(DESTDIR)$(DATADIR)/akaza-data
+	install -m 0755 -d $(DESTDIR)$(DATADIR)/akaza/model/default/
+	install -m 0644 data/*.model $(DESTDIR)$(DATADIR)/akaza/model/default/
+	install -m 0644 data/SKK-JISYO.* $(DESTDIR)$(DATADIR)/akaza/dict/
 
 # -------------------------------------------------------------------------
 
