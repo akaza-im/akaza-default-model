@@ -2,7 +2,7 @@ name: Generate the model file
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
     tags:
       - 'v*'
 
