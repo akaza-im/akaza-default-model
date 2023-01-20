@@ -32,7 +32,7 @@ jobs:
         python3 -m pip install --upgrade pip
         pip install wikiextractor
     - uses: dtolnay/rust-toolchain@stable
-    - run: cargo install --git https://github.com/akaza-im/akaza.git
+    - run: cargo install --git https://github.com/akaza-im/akaza.git akaza-data
     - name: download wikipedia data
       run: |
         make work/jawiki/jawiki-latest-pages-articles.xml.bz2
