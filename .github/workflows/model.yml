@@ -27,6 +27,11 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install libmarisa-dev clang unzip wget
+    - name: Install romkan
+      run: |
+        git clone git@github.com:tokuhirom/akaza.git
+        cd akaza
+        install -m 0644 -v -D -t /usr/share/akaza/romkan romkan/*
     - name: Install dependencies
       run: |
         python3 -m pip install --upgrade pip
