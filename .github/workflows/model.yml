@@ -31,7 +31,7 @@ jobs:
       run: |
         git clone https://github.com/akaza-im/akaza.git
         cd akaza
-        install -m 0644 -v -D -t /usr/share/akaza/romkan romkan/*
+        install -m 0644 -v -D -t ~/.config/akaza/romkan romkan/*
     - name: Install dependencies
       run: |
         python3 -m pip install --upgrade pip
