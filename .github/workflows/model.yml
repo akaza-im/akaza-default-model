@@ -49,7 +49,7 @@ jobs:
 
     - name: evaluate the model
       run: |
-        AKAZA_DATA_DIR=data/ \
+        AKAZA_MODEL_DIR=data/ \
         akaza-data evaluate \
           --corpus=anthy-corpus/corpus.0.txt \
           --corpus=anthy-corpus/corpus.1.txt \
