@@ -38,27 +38,38 @@ jobs:
         pip install wikiextractor
     - uses: dtolnay/rust-toolchain@stable
     - run: cargo install --git https://github.com/akaza-im/akaza.git akaza-data
-    - name: download wikipedia data
-      run: |
-        make work/jawiki/jawiki-latest-pages-articles.xml.bz2
-    - name: wikiextractor
-      run: |
-        make work/jawiki/extracted/_SUCCESS
-    - name: github actions のディスク容量オーバー対策で元ファイルを消す
-      run: |
-        rm work/jawiki/jawiki-latest-pages-articles.xml
-    - name: make work/jawiki/extracted/_SUCCESS
-      run: |
-        make work/jawiki/extracted/_SUCCESS
-    - name: jawiki をTokenize処理する
-      run: |
-        make work/jawiki/vibrato-ipadic/_SUCCESS
-    - name: make data
-      run: |
-        make all
+
+    # -o: ignore dependency management
+    - run: make -o work/jawiki/jawiki-latest-pages-articles.xml.bz2
+    - run: make -o work/jawiki/jawiki-latest-pages-articles.xml
+    - run: make -o work/jawiki/extracted/_SUCCESS
+    # ディスク容量が足りないので消す
+    - run: rm work/jawiki/jawiki-latest-pages-articles.xml
+    - run: make -o work/unidic/unidic.zip
+    - run: make -o work/unidic/lex_3_1.csv
+    - run: make -o work/vibrato/ipadic-mecab-2_7_0.tar.gz
+    - run: make -o work/vibrato/ipadic-mecab-2_7_0/system.dic
+    - run: make -o work/jawiki/vibrato-ipadic/_SUCCESS
+    - run: make -o work/aozora_bunko/vibrato-ipadic/_SUCCESS
+    - run: make -o work/vibrato-ipadic.wfreq
+    - run: make -o work/vibrato-ipadic.vocab
+    - run: make -o work/stats-vibrato-unigram.wordcnt.trie
+    - run: make -o work/stats-vibrato-bigram.wordcnt.trie
+    - run: make -o data/bigram.trie
+
     - name: evaluate the model
       run: |
-        make evaluate
+        AKAZA_DATA_DIR=data/ \
+        akaza-data evaluate \
+          --corpus=anthy-corpus/corpus.0.txt \
+          --corpus=anthy-corpus/corpus.1.txt \
+          --corpus=anthy-corpus/corpus.2.txt \
+          --corpus=anthy-corpus/corpus.3.txt \
+          --corpus=anthy-corpus/corpus.4.txt \
+          --corpus=anthy-corpus/corpus.5.txt \
+          --eucjp-dict=skk-dev-dict/SKK-JISYO.L \
+          --utf8-dict=data/SKK-JISYO.akaza \
+          -v
     - name: Create model package
       if: startsWith(github.ref, 'refs/tags/')
       run: |
