@@ -41,6 +41,18 @@ jobs:
     - name: download wikipedia data
       run: |
         make work/jawiki/jawiki-latest-pages-articles.xml.bz2
+    - name: wikiextractor
+      run: |
+        make work/jawiki/extracted/_SUCCESS
+    - name: github actions のディスク容量オーバー対策で元ファイルを消す
+      run: |
+        rm work/jawiki/jawiki-latest-pages-articles.xml
+    - name: make work/jawiki/extracted/_SUCCESS
+      run: |
+        make work/jawiki/extracted/_SUCCESS
+    - name: jawiki をTokenize処理する
+      run: |
+        make work/jawiki/vibrato-ipadic/_SUCCESS
     - name: make data
       run: |
         make all
