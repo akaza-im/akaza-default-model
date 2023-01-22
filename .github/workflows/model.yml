@@ -47,9 +47,11 @@ jobs:
     - run: rm work/jawiki/jawiki-latest-pages-articles.xml
     - run: make -o work/jawiki/jawiki-latest-pages-articles.xml all
 
+    - run: mkdir -p share/akaza/
+    - run: ln -s ../../data share/akaza/default
     - name: evaluate the model
       run: |
-        AKAZA_MODEL_DIR=data/ \
+        AKAZA_MODEL_DIR=share/akaza \
         akaza-data evaluate \
           --corpus=anthy-corpus/corpus.0.txt \
           --corpus=anthy-corpus/corpus.1.txt \
