@@ -125,8 +125,6 @@ data/SKK-JISYO.akaza: work/vibrato-ipadic.vocab dict/SKK-JISYO.akaza  corpus/mus
 # -------------------------------------------------------------------------
 
 evaluate: data/bigram.model
-	AKAZA_ROMKAN_DIR=../romkan/ \
-	AKAZA_MODEL_DIR=data/ \
 	akaza-data evaluate \
 		 --corpus=anthy-corpus/corpus.0.txt \
 		 --corpus=anthy-corpus/corpus.1.txt \
@@ -136,7 +134,8 @@ evaluate: data/bigram.model
 		 --corpus=anthy-corpus/corpus.5.txt \
 		 --eucjp-dict=skk-dev-dict/SKK-JISYO.L \
 		 --utf8-dict=data/SKK-JISYO.akaza \
-		 -v
+		 --model-dir=data/ \
+		 -vv
 
 # -------------------------------------------------------------------------
 

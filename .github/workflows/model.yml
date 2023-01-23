@@ -29,12 +29,12 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install libmarisa-dev clang unzip wget
+        sudo apt-get install ibus libgirepository1.0-dev libmarisa-dev clang libibus-1.0-dev unzip wget
     - name: Install romkan
       run: |
         git clone https://github.com/akaza-im/akaza.git
         cd akaza
-        install -m 0644 -v -D -t ~/.local/share/akaza/romkan romkan/*
+        sudo make install
     - name: Install dependencies
       run: |
         python3 -m pip install --upgrade pip
@@ -50,11 +50,8 @@ jobs:
     - run: rm work/jawiki/jawiki-latest-pages-articles.xml
     - run: make -o work/jawiki/jawiki-latest-pages-articles.xml all
 
-    - run: mkdir -p share/akaza/
-    - run: ln -s ../../data share/akaza/default
     - name: evaluate the model
       run: |
-        AKAZA_MODEL_DIR=share/akaza \
         akaza-data evaluate \
           --corpus=anthy-corpus/corpus.0.txt \
           --corpus=anthy-corpus/corpus.1.txt \
@@ -62,6 +59,7 @@ jobs:
           --corpus=anthy-corpus/corpus.3.txt \
           --corpus=anthy-corpus/corpus.4.txt \
           --corpus=anthy-corpus/corpus.5.txt \
+          --model-dir=data/ \
           --eucjp-dict=skk-dev-dict/SKK-JISYO.L \
           --utf8-dict=data/SKK-JISYO.akaza \
           -v
