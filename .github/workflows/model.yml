@@ -31,6 +31,8 @@ jobs:
         sudo apt-get update
         sudo apt-get install ibus libgirepository1.0-dev libmarisa-dev clang libibus-1.0-dev unzip wget
     - uses: dtolnay/rust-toolchain@stable
+      with:
+          components: clippy
     - name: Install dependencies
       run: |
         python3 -m pip install --upgrade pip
@@ -39,7 +41,7 @@ jobs:
       run: |
         git clone https://github.com/akaza-im/akaza.git
         cd akaza
-        sudo make install
+        sudo make install-resources
     - run: cargo install --git https://github.com/akaza-im/akaza.git akaza-data
 
     # -o: ignore dependency management
