@@ -1,5 +1,8 @@
 name: Generate the model file
 
+permissions:
+  contents: write
+
 on:
   push:
     branches: [ main ]
