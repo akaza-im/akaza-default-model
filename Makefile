@@ -82,8 +82,8 @@ work/vibrato-ipadic.vocab: work/vibrato-ipadic.wfreq
 
 work/stats-vibrato-unigram.wordcnt.trie: work/vibrato-ipadic.wfreq
 	akaza-data wordcnt-unigram \
- 		work/vibrato-ipadic.wfreq \
- 		work/stats-vibrato-unigram.wordcnt.trie
+		work/vibrato-ipadic.wfreq \
+		work/stats-vibrato-unigram.wordcnt.trie
 
 work/stats-vibrato-bigram.wordcnt.trie: work/stats-vibrato-unigram.wordcnt.trie work/stats-vibrato-unigram.wordcnt.trie work/aozora_bunko/vibrato-ipadic/_SUCCESS
 	mkdir -p work/dump/
