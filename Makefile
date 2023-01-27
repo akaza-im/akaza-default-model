@@ -124,13 +124,13 @@ data/SKK-JISYO.akaza: work/vibrato-ipadic.vocab dict/SKK-JISYO.akaza  corpus/mus
 
 # -------------------------------------------------------------------------
 
+# corpus.4.txt は誤変換をおさめたものなので評価用には使わない
 evaluate: data/bigram.model
 	akaza-data evaluate \
 		 --corpus=anthy-corpus/corpus.0.txt \
 		 --corpus=anthy-corpus/corpus.1.txt \
 		 --corpus=anthy-corpus/corpus.2.txt \
 		 --corpus=anthy-corpus/corpus.3.txt \
-		 --corpus=anthy-corpus/corpus.4.txt \
 		 --corpus=anthy-corpus/corpus.5.txt \
 		 --eucjp-dict=skk-dev-dict/SKK-JISYO.L \
 		 --utf8-dict=data/SKK-JISYO.akaza \
