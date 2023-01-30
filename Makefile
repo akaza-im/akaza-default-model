@@ -1,7 +1,7 @@
 PREFIX ?= /usr
 DATADIR ?= $(PREFIX)/share
 DESTDIR ?=
-
+MODELDIR ?= $(DESTDIR)$(DATADIR)/akaza/model/default/
 
 all: data/bigram.model \
 	 data/bigram.model \
@@ -140,9 +140,9 @@ evaluate: data/bigram.model
 # -------------------------------------------------------------------------
 
 install:
-	install -m 0755 -d $(DESTDIR)$(DATADIR)/akaza/model/default/
-	install -m 0644 data/*.model $(DESTDIR)$(DATADIR)/akaza/model/default/
-	install -m 0644 data/SKK-JISYO.* $(DESTDIR)$(DATADIR)/akaza/dict/
+	install -m 0755 -d $(MODELDIR)
+	install -m 0644 data/*.model $(MODELDIR)
+	install -m 0644 data/SKK-JISYO.* $(MODELDIR)
 
 # -------------------------------------------------------------------------
 
