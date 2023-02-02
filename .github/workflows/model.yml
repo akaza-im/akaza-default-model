@@ -58,10 +58,10 @@ jobs:
 
     # トーカナイズ処理時に、パラメータを切り替える
     - run: make -o work/jawiki/jawiki-latest-pages-articles.xml all
-      if: ${{ matrix.model_type != "kana-preferred" }}
+      if: ${{ matrix.model_type != 'kana-preferred' }}
 
     - run: TOKENIZER_OPTS=--kana-preferred make -o work/jawiki/jawiki-latest-pages-articles.xml all
-      if: ${{ matrix.model_type == "kana-preferred" }}
+      if: ${{ matrix.model_type == 'kana-preferred' }}
 
     # corpus.4.txt は誤変換をおさめたものなので評価用には使わない
     - name: evaluate the model
