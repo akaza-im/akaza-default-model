@@ -79,7 +79,8 @@ jobs:
     - name: Create model package
       if: startsWith(github.ref, 'refs/tags/')
       run: |
-        mv data akaza-default-model && tar czvf akaza-default-model.tar.gz akaza-default-model/
+        mv data akaza-${{ matrix.model_type }}-model && tar czvf akaza-${{ matrix.model_type }}-model.tar.gz akaza-${{ matrix.model_type }}-model/
+
     - name: Release
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
