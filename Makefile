@@ -3,6 +3,8 @@ DATADIR ?= $(PREFIX)/share
 DESTDIR ?=
 MODELDIR ?= $(DESTDIR)$(DATADIR)/akaza/model/default/
 
+TOKENIZER_OPTS ?=
+
 all: data/bigram.model \
 	 data/bigram.model \
 	 data/SKK-JISYO.akaza
@@ -51,6 +53,7 @@ work/jawiki/vibrato-ipadic/_SUCCESS: mecab-user-dict.csv work/jawiki/extracted/_
 		--reader=jawiki \
 		--user-dict=mecab-user-dict.csv \
 		--system-dict=work/vibrato/ipadic-mecab-2_7_0/system.dic \
+		$(TOKENIZER_OPTS) \
 		work/jawiki/extracted \
 		work/jawiki/vibrato-ipadic/ \
 		-vvv
