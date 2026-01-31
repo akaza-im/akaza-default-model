@@ -42,23 +42,57 @@ The Makefile encodes a linear data pipeline:
 7. **Build system dictionary** from vocab + corpus + UniDic katakana terms, excluding SKK-JISYO.L entries → `data/SKK-JISYO.akaza`
 8. **Evaluate** against anthy-corpus test sets (corpus.4.txt is excluded — it contains known error cases)
 
-## Model Format
+## Data Formats
 
-Models use marisa-trie format. Bigram entries look like:
+### corpus/*.txt (学習コーパス)
+
+`漢字/よみ` のスペース区切り。`;; ` で始まる行はコメント。
+
 ```
-愛/あい\tは/は => -0.525252
+僕/ぼく の/の 主観/しゅかん では/では そう/そう です/です
 ```
-Scores are `-log10(probability)` of n-grams.
 
-## Corpus Files (corpus/)
-
-Three tiers of expected conversion quality, used to correct model bias from Wikipedia/Aozora Bunko:
-
-- **must.txt** — Must convert correctly (10,000 training epochs). Shipping quality gate.
-- **should.txt** — Should convert correctly (100 epochs). Send PRs here for new conversions.
+Three tiers with different training epoch counts:
+- **must.txt** — Must convert correctly (10,000 epochs). Shipping quality gate.
+- **should.txt** — Should convert correctly (100 epochs). Send PRs here.
 - **may.txt** — Nice to have (10 epochs).
 
-Words in corpus files are automatically registered in the system dictionary. The delta parameter (2000) controls corpus influence strength.
+Words in corpus files are automatically registered in the system dictionary. Delta parameter (2000) controls corpus influence strength.
+
+### mecab-user-dict.csv
+
+Vibrato (MeCab互換) user dictionary CSV. Add words that Vibrato fails to tokenize.
+
+```
+令和,1288,1288,5904,名詞,固有名詞,一般,*,*,*,令和,レイワ,レイワ
+```
+
+Fields: `表層形,左文脈ID,右文脈ID,コスト,品詞,品詞細分類1,品詞細分類2,品詞細分類3,活用型,活用形,原形,読み,発音`
+
+### dict/SKK-JISYO.akaza
+
+SKK dictionary format. For vocabulary not in SKK-JISYO.L.
+
+```
+きめつのやいば /鬼滅の刃/
+かなにゅうりょく /かな入力/仮名入力/
+```
+
+Format: `よみ /候補1/候補2/.../`
+
+### anthy-corpus/*.txt (評価用コーパス)
+
+Evaluation data from anthy-unicode. Each line is pipe-delimited reading + expected kanji pair.
+
+```
+|さとう|」|です| |佐藤|」|です|
+```
+
+First half is readings (hiragana), space separator, second half is expected conversion. corpus.4.txt is excluded from evaluation (contains known error cases).
+
+### bigram.model, unigram.model (生成物)
+
+marisa-trie format. Bigram entries: `愛/あい\tは/は => -0.525252`. Scores are `-log10(probability)`.
 
 ## Key Tuning Points
 
