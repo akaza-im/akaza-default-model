@@ -13,6 +13,14 @@ Github Releases からビルド済みファイルを取得してください。
 
     make
 
+## リリース
+
+GitHub Releases で配布しています。CalVer (`YYYY.MMDD.PATCH`) を採用しています。
+
+例: `v2026.0201.1`
+
+`v*` タグを push すると GitHub Actions が自動的にモデルをビルドし、`akaza-default-model.tar.gz` と `akaza-kana-preferred-model.tar.gz` を Release に添付します。
+
 ## Dependencies
 
 * wikiextractor
