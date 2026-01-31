@@ -101,6 +101,15 @@ marisa-trie format. Bigram entries: `愛/あい\tは/は => -0.525252`. Scores a
 - `dict/SKK-JISYO.akaza` — Base system dictionary template
 - Makefile thresholds: vocab threshold=16, bigram threshold=3
 
+## Release
+
+CalVer (`YYYY.MMDD.PATCH`) format, e.g. `v2026.0201.1`. Pushing a `v*` tag triggers GitHub Actions to build and attach model tarballs to a GitHub Release.
+
+```bash
+git tag v2026.0201.1
+git push origin v2026.0201.1
+```
+
 ## CI/CD
 
 GitHub Actions builds two model variants (`default` and `kana-preferred`) in a matrix. Tagged pushes (`v*`) create GitHub Releases with packaged model tarballs. The Wikipedia dump is cached between builds to avoid re-downloading.
