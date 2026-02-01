@@ -40,13 +40,13 @@ work/unidic/lex_3_1.csv: work/unidic/unidic.zip
 
 # Vibrato トーカナイズ
 
-work/vibrato/ipadic-mecab-2_7_0.tar.gz:
+work/vibrato/ipadic-mecab-2_7_0.tar.xz:
 	mkdir -p work/vibrato/
-	wget --no-verbose --no-clobber -O work/vibrato/ipadic-mecab-2_7_0.tar.gz https://github.com/daac-tools/vibrato/releases/download/v0.3.1/ipadic-mecab-2_7_0.tar.gz
+	wget --no-verbose --no-clobber -O work/vibrato/ipadic-mecab-2_7_0.tar.xz https://github.com/daac-tools/vibrato/releases/download/v0.5.0/ipadic-mecab-2_7_0.tar.xz
 
-work/vibrato/ipadic-mecab-2_7_0/system.dic: work/vibrato/ipadic-mecab-2_7_0.tar.gz
+work/vibrato/ipadic-mecab-2_7_0/system.dic: work/vibrato/ipadic-mecab-2_7_0.tar.xz
 	mkdir -p work/vibrato/
-	tar -xmzf work/vibrato/ipadic-mecab-2_7_0.tar.gz -C work/vibrato/
+	tar -xmJf work/vibrato/ipadic-mecab-2_7_0.tar.xz -C work/vibrato/
 
 work/jawiki/vibrato-ipadic/_SUCCESS: mecab-user-dict.csv work/jawiki/extracted/_SUCCESS work/vibrato/ipadic-mecab-2_7_0/system.dic
 	akaza-data tokenize \
