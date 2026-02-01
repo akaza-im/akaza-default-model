@@ -110,6 +110,12 @@ git tag v2026.0201.1
 git push origin v2026.0201.1
 ```
 
+## Local Build Notes
+
+ローカルにはディスクに余裕があるので、CI のように中間ファイル（jawiki XML 等）を削除する必要はない。`work/` 以下の中間成果物はそのまま残してよい。
+
+wikiextractor は Python 3.11+ で動かないため、devbox で Python 3.10 を使う (`devbox add python@3.10.19`)。
+
 ## CI/CD
 
 GitHub Actions builds two model variants (`default` and `kana-preferred`) in a matrix. Tagged pushes (`v*`) create GitHub Releases with packaged model tarballs. The Wikipedia dump is cached between builds to avoid re-downloading.
