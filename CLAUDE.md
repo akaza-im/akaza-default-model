@@ -114,7 +114,7 @@ git push origin v2026.0201.1
 
 ローカルにはディスクに余裕があるので、CI のように中間ファイル（jawiki XML 等）を削除する必要はない。`work/` 以下の中間成果物はそのまま残してよい。
 
-wikiextractor は Python 3.11+ で動かないため、devbox で Python 3.10 を使う (`devbox add python@3.10.19`)。
+wikiextractor は Python 3.11+ で動かないため、mise で Python 3.10 を使う (`.mise.toml` で設定済み)。
 
 ## CI/CD
 
