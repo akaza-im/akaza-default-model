@@ -1,0 +1,17 @@
+name: Validate data files
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'corpus/**'
+      - 'dict/SKK-JISYO.akaza'
+      - 'scripts/validate.py'
+      - '.github/workflows/validate.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - run: python3 scripts/validate.py

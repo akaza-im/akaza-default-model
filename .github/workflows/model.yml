@@ -9,6 +9,12 @@ on:
       - 'v*'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'Makefile'
+      - 'corpus/**'
+      - 'dict/**'
+      - 'anthy-corpus/**'
+      - '.github/workflows/model.yml'
 
 jobs:
   build:
