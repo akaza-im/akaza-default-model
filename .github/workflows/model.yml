@@ -30,18 +30,26 @@ jobs:
           ~/.cargo/git
           work/jawiki/jawiki-latest-pages-articles.xml.bz2
         key: ${{ runner.os }}-build-v1
+
+    # Phase 1: XML展開（ディスク使用量が最大になる処理を先に行う）
+    # bunzip2 は Ubuntu にプリインストール済み。重いパッケージのインストールは後回しにする。
+    - run: make work/jawiki/jawiki-latest-pages-articles.xml.bz2
+    - run: make work/jawiki/jawiki-latest-pages-articles.xml
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    - name: Install wikiextractor
+      run: pip install wikiextractor
+    - run: make work/jawiki/extracted/_SUCCESS
+    # ディスク容量が足りないので消す
+    - run: rm work/jawiki/jawiki-latest-pages-articles.xml
+
+    # Phase 2: ビルドツールのインストール（XML削除後、ディスクに余裕がある状態で）
     - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install ibus libgirepository1.0-dev libmarisa-dev clang libibus-1.0-dev unzip wget zstd
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
     - uses: dtolnay/rust-toolchain@stable
-    - name: Install Python dependencies
-      run: |
-        python3 -m pip install --upgrade pip
-        pip install wikiextractor
     - name: Install romkan
       run: |
         git clone https://github.com/akaza-im/akaza.git
@@ -49,14 +57,7 @@ jobs:
         sudo make install-resources
     - run: cargo install --git https://github.com/akaza-im/akaza.git akaza-data
 
-    # -o: ignore dependency management
-    - run: make work/jawiki/jawiki-latest-pages-articles.xml.bz2
-    - run: make work/jawiki/jawiki-latest-pages-articles.xml
-    - run: make work/jawiki/extracted/_SUCCESS
-    # ディスク容量が足りないので消す
-    - run: rm work/jawiki/jawiki-latest-pages-articles.xml
-
-    # トーカナイズ処理時に、パラメータを切り替える
+    # Phase 3: モデルビルド（トーカナイズ処理時に、パラメータを切り替える）
     - run: make -o work/jawiki/jawiki-latest-pages-articles.xml all
       if: ${{ matrix.model_type != 'kana-preferred' }}
 
