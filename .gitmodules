@@ -1,6 +1,3 @@
 [submodule "skk-dev-dict"]
 	path = skk-dev-dict
 	url = git@github.com:skk-dev/dict.git
-[submodule "aozorabunko_text"]
-	path = aozorabunko_text
-	url = git@github.com:aozorahack/aozorabunko_text.git

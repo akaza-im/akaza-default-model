@@ -12,55 +12,22 @@ on:
 
 jobs:
   build:
-    strategy:
-      fail-fast: false
-      matrix:
-        model_type: ['default', 'kana-preferred']
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
       with:
         submodules: true
-    # Cargo キャッシュ（post-step でジョブ終了時に自動保存）
     - uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/registry
           ~/.cargo/git
         key: ${{ runner.os }}-cargo-v1
-    # Wikipedia dump キャッシュ（bunzip2 で消えるため、明示的に restore/save を分離）
-    - uses: actions/cache/restore@v4
-      id: wiki-cache
-      with:
-        path: work/jawiki/jawiki-latest-pages-articles.xml.bz2
-        key: ${{ runner.os }}-jawiki-v1
-
-    # Phase 1: XML展開（ディスク使用量が最大になる処理を先に行う）
-    # bunzip2 は Ubuntu にプリインストール済み。重いパッケージのインストールは後回しにする。
-    - run: make work/jawiki/jawiki-latest-pages-articles.xml.bz2
-    - uses: actions/cache/save@v4
-      if: steps.wiki-cache.outputs.cache-hit != 'true'
-      with:
-        path: work/jawiki/jawiki-latest-pages-articles.xml.bz2
-        key: ${{ runner.os }}-jawiki-v1
-    # CI では --keep 不要（.bz2 はキャッシュ済み）。~1GB のディスク節約。
-    - run: bunzip2 work/jawiki/jawiki-latest-pages-articles.xml.bz2
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
-    - name: Install wikiextractor
-      run: pip install wikiextractor
-    - run: make work/jawiki/extracted/_SUCCESS
-    # ディスク容量が足りないので消す
-    - run: rm work/jawiki/jawiki-latest-pages-articles.xml
-
-    # Phase 2: ビルドツールのインストール（XML削除後、ディスクに余裕がある状態で）
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install ibus libgirepository1.0-dev libmarisa-dev clang libibus-1.0-dev unzip wget zstd
+        sudo apt-get install libmarisa-dev clang libibus-1.0-dev unzip wget
     - uses: dtolnay/rust-toolchain@stable
     - name: Install romkan
       run: |
@@ -68,37 +35,21 @@ jobs:
         cd akaza
         sudo make install-resources
     - run: cargo install --git https://github.com/akaza-im/akaza.git akaza-data
-
-    # Phase 3: モデルビルド（トーカナイズ処理時に、パラメータを切り替える）
-    - run: make -o work/jawiki/jawiki-latest-pages-articles.xml all
-      if: ${{ matrix.model_type != 'kana-preferred' }}
-
-    - run: TOKENIZER_OPTS=--kana-preferred make -o work/jawiki/jawiki-latest-pages-articles.xml all
-      if: ${{ matrix.model_type == 'kana-preferred' }}
-
-    # corpus.4.txt は誤変換をおさめたものなので評価用には使わない
+    - run: make
+      env:
+        GH_TOKEN: ${{ github.token }}
     - name: evaluate the model
-      run: |
-        akaza-data evaluate \
-          --corpus=anthy-corpus/corpus.0.txt \
-          --corpus=anthy-corpus/corpus.1.txt \
-          --corpus=anthy-corpus/corpus.2.txt \
-          --corpus=anthy-corpus/corpus.3.txt \
-          --corpus=anthy-corpus/corpus.5.txt \
-          --model-dir=data/ \
-          --eucjp-dict=skk-dev-dict/SKK-JISYO.L \
-          --utf8-dict=data/SKK-JISYO.akaza \
-          -v
+      run: make evaluate
     - name: Create model package
       if: startsWith(github.ref, 'refs/tags/')
       run: |
-        mv data akaza-${{ matrix.model_type }}-model && tar czvf akaza-${{ matrix.model_type }}-model.tar.gz akaza-${{ matrix.model_type }}-model/
+        mv data akaza-default-model && tar czvf akaza-default-model.tar.gz akaza-default-model/
     - name: Upload artifact
       if: startsWith(github.ref, 'refs/tags/')
       uses: actions/upload-artifact@v4
       with:
-        name: akaza-${{ matrix.model_type }}-model
-        path: akaza-${{ matrix.model_type }}-model.tar.gz
+        name: akaza-default-model
+        path: akaza-default-model.tar.gz
 
   release:
     needs: [build]
