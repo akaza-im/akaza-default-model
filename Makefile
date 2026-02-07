@@ -4,6 +4,7 @@ DESTDIR ?=
 MODELDIR ?= $(DESTDIR)$(DATADIR)/akaza/model/default/
 
 TOKENIZER_OPTS ?=
+CIRRUS_DATE ?= 20251229
 
 all: data/bigram.model \
 	 data/bigram.model \
@@ -11,17 +12,14 @@ all: data/bigram.model \
 
 # -------------------------------------------------------------------------
 
-# wikipedia の前処理
+# wikipedia の前処理 (CirrusSearch ダンプを利用)
 
-work/jawiki/jawiki-latest-pages-articles.xml.bz2:
+work/jawiki/jawiki-cirrussearch-content.json.gz:
 	mkdir -p work/jawiki/
-	wget --no-verbose --no-clobber -O work/jawiki/jawiki-latest-pages-articles.xml.bz2 https://dumps.wikimedia.org/jawiki/latest/jawiki-latest-pages-articles.xml.bz2
+	wget --no-verbose --no-clobber -O work/jawiki/jawiki-cirrussearch-content.json.gz https://dumps.wikimedia.org/other/cirrussearch/$(CIRRUS_DATE)/jawiki-$(CIRRUS_DATE)-cirrussearch-content.json.gz
 
-work/jawiki/jawiki-latest-pages-articles.xml: work/jawiki/jawiki-latest-pages-articles.xml.bz2
-	bunzip2 --keep work/jawiki/jawiki-latest-pages-articles.xml.bz2
-
-work/jawiki/extracted/_SUCCESS: work/jawiki/jawiki-latest-pages-articles.xml
-	python3 -m wikiextractor.WikiExtractor --quiet --processes 8 --out work/jawiki/extracted/ work/jawiki/jawiki-latest-pages-articles.xml
+work/jawiki/extracted/_SUCCESS: work/jawiki/jawiki-cirrussearch-content.json.gz
+	python3 scripts/extract-cirrus.py work/jawiki/jawiki-cirrussearch-content.json.gz work/jawiki/extracted/
 	touch work/jawiki/extracted/_SUCCESS
 
 # -------------------------------------------------------------------------

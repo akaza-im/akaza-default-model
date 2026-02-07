@@ -8,13 +8,13 @@ This repository generates the default language model and system dictionary for *
 
 ## Build Commands
 
-The build requires `akaza-data` (Rust tool from https://github.com/akaza-im/akaza.git), `wikiextractor` (Python), `wget`, `bunzip2`, `unzip`, and system libraries (`libmarisa-dev`, `clang`, `libibus-1.0-dev`).
+The build requires `akaza-data` (Rust tool from https://github.com/akaza-im/akaza.git), `wget`, `unzip`, and system libraries (`libmarisa-dev`, `clang`, `libibus-1.0-dev`).
 
 ```bash
 # Install akaza-data
 cargo install --git https://github.com/akaza-im/akaza.git akaza-data
 
-# Build everything (downloads ~1GB Wikipedia dump on first run)
+# Build everything (downloads ~12GB Wikipedia CirrusSearch dump on first run)
 make
 
 # Build kana-preferred variant
@@ -33,7 +33,7 @@ Git submodules (`skk-dev-dict`, `aozorabunko_text`) must be initialized before b
 
 The Makefile encodes a linear data pipeline:
 
-1. **Download & extract** Japanese Wikipedia dump → `work/jawiki/`
+1. **Download & extract** Japanese Wikipedia CirrusSearch dump (NDJSON, gzip) → `work/jawiki/extracted/`
 2. **Tokenize** Wikipedia and Aozora Bunko texts using Vibrato (MeCab-compatible) with IPADIC dictionary → `work/jawiki/vibrato-ipadic/`, `work/aozora_bunko/vibrato-ipadic/`
 3. **Compute word frequencies** (wfreq) across all tokenized sources + corpus files → `work/vibrato-ipadic.wfreq`
 4. **Build vocabulary** with frequency threshold=16 → `work/vibrato-ipadic.vocab`
@@ -112,9 +112,9 @@ git push origin v2026.0201.1
 
 ## Local Build Notes
 
-ローカルにはディスクに余裕があるので、CI のように中間ファイル（jawiki XML 等）を削除する必要はない。`work/` 以下の中間成果物はそのまま残してよい。
+ローカルにはディスクに余裕があるので、CI のように中間ファイルを削除する必要はない。`work/` 以下の中間成果物はそのまま残してよい。
 
-wikiextractor は Python 3.11+ で動かないため、mise で Python 3.10 を使う (`.mise.toml` で設定済み)。
+Wikipedia データは CirrusSearch ダンプ (NDJSON, gzip) を使用。`scripts/extract-cirrus.py` でストリーミング展開するため、Python バージョン制約はない（標準ライブラリのみ使用）。
 
 ## CI/CD
 
