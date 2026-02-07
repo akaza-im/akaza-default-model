@@ -23,18 +23,30 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
+    # Cargo キャッシュ（post-step でジョブ終了時に自動保存）
     - uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/registry
           ~/.cargo/git
-          work/jawiki/jawiki-latest-pages-articles.xml.bz2
-        key: ${{ runner.os }}-build-v1
+        key: ${{ runner.os }}-cargo-v1
+    # Wikipedia dump キャッシュ（bunzip2 で消えるため、明示的に restore/save を分離）
+    - uses: actions/cache/restore@v4
+      id: wiki-cache
+      with:
+        path: work/jawiki/jawiki-latest-pages-articles.xml.bz2
+        key: ${{ runner.os }}-jawiki-v1
 
     # Phase 1: XML展開（ディスク使用量が最大になる処理を先に行う）
     # bunzip2 は Ubuntu にプリインストール済み。重いパッケージのインストールは後回しにする。
     - run: make work/jawiki/jawiki-latest-pages-articles.xml.bz2
-    - run: make work/jawiki/jawiki-latest-pages-articles.xml
+    - uses: actions/cache/save@v4
+      if: steps.wiki-cache.outputs.cache-hit != 'true'
+      with:
+        path: work/jawiki/jawiki-latest-pages-articles.xml.bz2
+        key: ${{ runner.os }}-jawiki-v1
+    # CI では --keep 不要（.bz2 はキャッシュ済み）。~1GB のディスク節約。
+    - run: bunzip2 work/jawiki/jawiki-latest-pages-articles.xml.bz2
     - uses: actions/setup-python@v5
       with:
         python-version: '3.10'
