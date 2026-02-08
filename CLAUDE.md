@@ -52,6 +52,21 @@ Three tiers with different training epoch counts:
 
 Words in corpus files are automatically registered in the system dictionary. Delta parameter (2000) controls corpus influence strength.
 
+**重要**: コーパスの単語境界は vibrato (ipadic) のトークナイズ結果に合わせること。ただし読みは vibrato の出力を鵜呑みにせず、文脈に合った正しい読みを書くこと。vibrato は「行って」を「おこなって」、「日本」を「にっぽん」と読むなど、文脈を無視した読みを返すことがある。`scripts/tokenize-line.sh` で単語境界を確認し、読みは自分で正しく付ける。引数でもstdinでも入力可能。
+
+```bash
+# 単一文の確認
+./scripts/tokenize-line.sh "買い物に行ってくる"
+# => 買い物/かいもの に/に 行って/おこなって くる/くる
+# ※ 単語境界(4トークン)は正しいが、読み「おこなって」は誤り
+# ※ コーパスでは: 買い物/かいもの に/に 行って/いって くる/くる
+
+# 複数行の確認 (stdin)
+echo -e "10時頃に届く\n使用できる" | ./scripts/tokenize-line.sh
+# => 10時頃/10じごろ に/に 届く/とどく
+# => 使用/しよう できる/できる
+```
+
 ### dict/SKK-JISYO.akaza
 
 SKK dictionary format. For vocabulary not in SKK-JISYO.L.
@@ -72,6 +87,8 @@ Evaluation data from anthy-unicode. Each line is pipe-delimited reading + expect
 ```
 
 First half is readings (hiragana), space separator, second half is expected conversion. corpus.4.txt is excluded from evaluation (contains known error cases).
+
+**注意**: anthy コーパスの表記基準に合わせる必要はない。anthy が漢字にしているものを akaza がひらがなで出力する、またはその逆（例: 「ください/下さい」「ない/無い」「もの/物」「こと/事」「いい/良い」等）は表記スタイルの違いであり、誤変換ではない。evaluate の BAD に含まれていてもこれらは改善対象外。
 
 ### bigram.model, unigram.model (生成物)
 
