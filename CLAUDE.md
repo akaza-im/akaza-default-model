@@ -52,6 +52,23 @@ Three tiers with different training epoch counts:
 
 Words in corpus files are automatically registered in the system dictionary. Delta parameter (2000) controls corpus influence strength.
 
+**重要**: コーパスの単語境界は vibrato (ipadic) のトークナイズ結果に合わせること。ただし読みは vibrato の出力を鵜呑みにせず、文脈に合った正しい読みを書くこと。vibrato は「行って」を「おこなって」、「日本」を「にっぽん」と読むなど、文脈を無視した読みを返すことがある。`scripts/tokenize-line.sh` で単語境界を確認し、読みは自分で正しく付ける。引数でもstdinでも入力可能。
+
+**重要**: bigram モデルは BOS（文頭）・EOS（文末）をトークンとして使用するため、コーパスには原則として完全な文を追加すること。文の断片（例: `ここ/ここ に/に ある/ある`）ではなく、自然な文（例: `ここ/ここ に/に 荷物/にもつ が/が ある/ある`）として登録する。BOS/EOS の bigram が正しく学習されるようにするため。
+
+```bash
+# 単一文の確認
+./scripts/tokenize-line.sh "買い物に行ってくる"
+# => 買い物/かいもの に/に 行って/おこなって くる/くる
+# ※ 単語境界(4トークン)は正しいが、読み「おこなって」は誤り
+# ※ コーパスでは: 買い物/かいもの に/に 行って/いって くる/くる
+
+# 複数行の確認 (stdin)
+echo -e "10時頃に届く\n使用できる" | ./scripts/tokenize-line.sh
+# => 10時頃/10じごろ に/に 届く/とどく
+# => 使用/しよう できる/できる
+```
+
 ### dict/SKK-JISYO.akaza
 
 SKK dictionary format. For vocabulary not in SKK-JISYO.L.
@@ -73,6 +90,8 @@ Evaluation data from anthy-unicode. Each line is pipe-delimited reading + expect
 
 First half is readings (hiragana), space separator, second half is expected conversion. corpus.4.txt is excluded from evaluation (contains known error cases).
 
+**注意**: anthy コーパスの表記基準に合わせる必要はない。anthy が漢字にしているものを akaza がひらがなで出力する、またはその逆（例: 「ください/下さい」「ない/無い」「もの/物」「こと/事」「いい/良い」等）は表記スタイルの違いであり、誤変換ではない。evaluate の BAD に含まれていてもこれらは改善対象外。
+
 ### bigram.model, unigram.model (生成物)
 
 marisa-trie format. Bigram entries: `愛/あい\tは/は => -0.525252`. Scores are `-log10(probability)`.
@@ -80,8 +99,38 @@ marisa-trie format. Bigram entries: `愛/あい\tは/は => -0.525252`. Scores a
 ## Key Tuning Points
 
 - `training-corpus/should.txt` — Add reading→kanji pairs for conversions that the corpus statistics don't cover well (especially colloquial expressions)
-- `dict/SKK-JISYO.akaza` — Base system dictionary template
+- `dict/SKK-JISYO.akaza` — Base system dictionary template. 珍妙な変換（Wikipedia コーパスの偏りで「お題→於大」「これは→之派」のように古典漢字や稀な語が優先される場合）には、正しい複合語エントリを辞書に追加することで対処できる。
 - `CORPUS_STATS_VERSION` in Makefile — Version of pre-computed statistics to use
+
+## チューニング知見
+
+### 双方向同音異義語の罠
+
+`各/書く/核`、`濃い/恋/鯉/故意`、`着る/切る` のように、同じ読みで3つ以上の漢字がある語は should.txt での調整が極めて困難。一方を強化すると他方が退行する。このような多方向同音異義語は should.txt ではなく、以下の手段で対処する:
+- **辞書エントリ (SKK-JISYO.akaza)**: 複合語として登録（例: `かくしせつ /核施設/各施設/`）
+- **bigram backoff** や言語モデルの改善（akaza 本体側）
+
+### 退行チェックの必須化
+
+エントリ追加後は必ず evaluate を実行し、前回の BAD リストと diff を取ること。BAD 数が同じでも中身が入れ替わっている可能性がある。特に同音異義語パターンでは、片方を修正すると逆方向の退行が発生しやすい。
+
+**重要**: evaluate の出力は今後並列化により順序が保証されなくなるため、diff を取る際は必ず sort してから比較すること:
+```bash
+diff <(grep '^\[BAD\]' old/bad.txt | sort) <(grep '^\[BAD\]' new/bad.txt | sort)
+```
+
+### 珍妙パターン（Wikipedia コーパスの偏り）
+
+Wikipedia 由来の統計では、歴史上の人物名（勝頼、蒲生等）や古典漢字（憑坐、於大、之派等）が高スコアになることがある。これらは:
+- 正しい複合語を辞書に登録する
+- コーパスで正しいパターンの bigram を強化する
+
+### 効果的なパターン
+
+以下のパターンは退行を起こしにくく効果が高い:
+- **分節崩壊の修正**: 口語表現（〜らん、〜っていう、〜んだろう等）の正しい分節
+- **一方向の同音異義語**: 年→都市、鬱→映 など、逆方向の誤変換が少ないもの
+- **珍妙変換の修正**: 一般的な表現が古典漢字に変換されるケース
 
 ## Release
 
