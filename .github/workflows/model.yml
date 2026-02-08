@@ -12,11 +12,6 @@ on:
 
 jobs:
   build:
-    strategy:
-      fail-fast: false
-      matrix:
-        model_type: ['default', 'kana-preferred']
-
     runs-on: ubuntu-latest
 
     steps:
@@ -28,64 +23,33 @@ jobs:
         path: |
           ~/.cargo/registry
           ~/.cargo/git
-          work/jawiki/jawiki-latest-pages-articles.xml.bz2
-        key: ${{ runner.os }}-build-v1
+        key: ${{ runner.os }}-cargo-v1
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install ibus libgirepository1.0-dev libmarisa-dev clang libibus-1.0-dev unzip wget zstd
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
+        sudo apt-get install libmarisa-dev clang libibus-1.0-dev unzip wget
     - uses: dtolnay/rust-toolchain@stable
-    - name: Install Python dependencies
-      run: |
-        python3 -m pip install --upgrade pip
-        pip install wikiextractor
     - name: Install romkan
       run: |
         git clone https://github.com/akaza-im/akaza.git
         cd akaza
         sudo make install-resources
     - run: cargo install --git https://github.com/akaza-im/akaza.git akaza-data
-
-    # -o: ignore dependency management
-    - run: make work/jawiki/jawiki-latest-pages-articles.xml.bz2
-    - run: make work/jawiki/jawiki-latest-pages-articles.xml
-    - run: make work/jawiki/extracted/_SUCCESS
-    # ディスク容量が足りないので消す
-    - run: rm work/jawiki/jawiki-latest-pages-articles.xml
-
-    # トーカナイズ処理時に、パラメータを切り替える
-    - run: make -o work/jawiki/jawiki-latest-pages-articles.xml all
-      if: ${{ matrix.model_type != 'kana-preferred' }}
-
-    - run: TOKENIZER_OPTS=--kana-preferred make -o work/jawiki/jawiki-latest-pages-articles.xml all
-      if: ${{ matrix.model_type == 'kana-preferred' }}
-
-    # corpus.4.txt は誤変換をおさめたものなので評価用には使わない
+    - run: make
+      env:
+        GH_TOKEN: ${{ github.token }}
     - name: evaluate the model
-      run: |
-        akaza-data evaluate \
-          --corpus=anthy-corpus/corpus.0.txt \
-          --corpus=anthy-corpus/corpus.1.txt \
-          --corpus=anthy-corpus/corpus.2.txt \
-          --corpus=anthy-corpus/corpus.3.txt \
-          --corpus=anthy-corpus/corpus.5.txt \
-          --model-dir=data/ \
-          --eucjp-dict=skk-dev-dict/SKK-JISYO.L \
-          --utf8-dict=data/SKK-JISYO.akaza \
-          -v
+      run: make evaluate
     - name: Create model package
       if: startsWith(github.ref, 'refs/tags/')
       run: |
-        mv data akaza-${{ matrix.model_type }}-model && tar czvf akaza-${{ matrix.model_type }}-model.tar.gz akaza-${{ matrix.model_type }}-model/
+        mv data akaza-default-model && tar czvf akaza-default-model.tar.gz akaza-default-model/
     - name: Upload artifact
       if: startsWith(github.ref, 'refs/tags/')
       uses: actions/upload-artifact@v4
       with:
-        name: akaza-${{ matrix.model_type }}-model
-        path: akaza-${{ matrix.model_type }}-model.tar.gz
+        name: akaza-default-model
+        path: akaza-default-model.tar.gz
 
   release:
     needs: [build]
