@@ -102,6 +102,36 @@ marisa-trie format. Bigram entries: `愛/あい\tは/は => -0.525252`. Scores a
 - `dict/SKK-JISYO.akaza` — Base system dictionary template. 珍妙な変換（Wikipedia コーパスの偏りで「お題→於大」「これは→之派」のように古典漢字や稀な語が優先される場合）には、正しい複合語エントリを辞書に追加することで対処できる。
 - `CORPUS_STATS_VERSION` in Makefile — Version of pre-computed statistics to use
 
+## チューニング知見
+
+### 双方向同音異義語の罠
+
+`各/書く/核`、`濃い/恋/鯉/故意`、`着る/切る` のように、同じ読みで3つ以上の漢字がある語は should.txt での調整が極めて困難。一方を強化すると他方が退行する。このような多方向同音異義語は should.txt ではなく、以下の手段で対処する:
+- **辞書エントリ (SKK-JISYO.akaza)**: 複合語として登録（例: `かくしせつ /核施設/各施設/`）
+- **bigram backoff** や言語モデルの改善（akaza 本体側）
+
+### 退行チェックの必須化
+
+エントリ追加後は必ず evaluate を実行し、前回の BAD リストと diff を取ること。BAD 数が同じでも中身が入れ替わっている可能性がある。特に同音異義語パターンでは、片方を修正すると逆方向の退行が発生しやすい。
+
+**重要**: evaluate の出力は今後並列化により順序が保証されなくなるため、diff を取る際は必ず sort してから比較すること:
+```bash
+diff <(grep '^\[BAD\]' old/bad.txt | sort) <(grep '^\[BAD\]' new/bad.txt | sort)
+```
+
+### 珍妙パターン（Wikipedia コーパスの偏り）
+
+Wikipedia 由来の統計では、歴史上の人物名（勝頼、蒲生等）や古典漢字（憑坐、於大、之派等）が高スコアになることがある。これらは:
+- 正しい複合語を辞書に登録する
+- コーパスで正しいパターンの bigram を強化する
+
+### 効果的なパターン
+
+以下のパターンは退行を起こしにくく効果が高い:
+- **分節崩壊の修正**: 口語表現（〜らん、〜っていう、〜んだろう等）の正しい分節
+- **一方向の同音異義語**: 年→都市、鬱→映 など、逆方向の誤変換が少ないもの
+- **珍妙変換の修正**: 一般的な表現が古典漢字に変換されるケース
+
 ## Release
 
 CalVer (`YYYY.MMDD.PATCH`) format, e.g. `v2026.0201.1`. Pushing a `v*` tag triggers GitHub Actions to build and attach model tarballs to a GitHub Release.
