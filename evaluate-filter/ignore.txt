@@ -1,0 +1,15 @@
+# 評価から除外する入力（文脈なしでは曖昧すぎるもの）
+# 1行に1つの入力読み
+うたがうまいことをうたがうまい	wordplay
+おもしろいいぬをみつけました。	wordplay
+たいまいはたいてたいまいかった	wordplay
+となりのにわにはにわにわとりがいた	wordplay
+どあのとってもとってもかわいい	wordplay
+いいねがついてよかった	wordplay_no_context
+かんそうきかして	wordplay_no_context
+きょういくのはなし	wordplay_no_context
+きょうふのみそしる	wordplay_no_context
+せんこうはなびつきのじどうしゃ	wordplay_no_context
+やつはしらべる、きをつけよう。	wordplay_no_context
+えんこがまずいのはじじつ	slang_abbreviation
+えんこははやくなりません	slang_abbreviation
