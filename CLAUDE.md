@@ -54,6 +54,8 @@ Words in corpus files are automatically registered in the system dictionary. Del
 
 **重要**: コーパスの単語境界は vibrato (ipadic) のトークナイズ結果に合わせること。ただし読みは vibrato の出力を鵜呑みにせず、文脈に合った正しい読みを書くこと。vibrato は「行って」を「おこなって」、「日本」を「にっぽん」と読むなど、文脈を無視した読みを返すことがある。`scripts/tokenize-line.sh` で単語境界を確認し、読みは自分で正しく付ける。引数でもstdinでも入力可能。
 
+**重要**: bigram モデルは BOS（文頭）・EOS（文末）をトークンとして使用するため、コーパスには原則として完全な文を追加すること。文の断片（例: `ここ/ここ に/に ある/ある`）ではなく、自然な文（例: `ここ/ここ に/に 荷物/にもつ が/が ある/ある`）として登録する。BOS/EOS の bigram が正しく学習されるようにするため。
+
 ```bash
 # 単一文の確認
 ./scripts/tokenize-line.sh "買い物に行ってくる"
