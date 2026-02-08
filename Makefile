@@ -38,15 +38,15 @@ work/unidic/lex_3_1.csv: work/unidic/unidic.zip
 
 # 統計的仮名かな漢字変換のためのモデル作成処理
 
-data/bigram.model: work/corpus-stats/_SUCCESS corpus/must.txt corpus/should.txt corpus/may.txt data/SKK-JISYO.akaza
+data/bigram.model: work/corpus-stats/_SUCCESS training-corpus/must.txt training-corpus/should.txt training-corpus/may.txt data/SKK-JISYO.akaza
 	akaza-data learn-corpus \
 		--delta=2000 \
 		--may-epochs=10 \
 		--should-epochs=100 \
 		--must-epochs=10000 \
-		corpus/may.txt \
-		corpus/should.txt \
-		corpus/must.txt \
+		training-corpus/may.txt \
+		training-corpus/should.txt \
+		training-corpus/must.txt \
 		work/stats-vibrato-unigram.wordcnt.trie work/stats-vibrato-bigram.wordcnt.trie \
 		data/unigram.model data/bigram.model \
 		-v
@@ -58,11 +58,11 @@ data/unigram.model: data/bigram.model
 # システム辞書の構築。dict/SKK-JISYO.akaza、コーパスに書かれている語彙および work/vibrato-ipadic.vocab にある語彙。
 # から、SKK-JISYO.L に含まれる語彙を除いたものが登録されている。
 
-data/SKK-JISYO.akaza: work/corpus-stats/_SUCCESS dict/SKK-JISYO.akaza corpus/must.txt corpus/should.txt corpus/may.txt work/unidic/lex_3_1.csv
+data/SKK-JISYO.akaza: work/corpus-stats/_SUCCESS dict/SKK-JISYO.akaza training-corpus/must.txt training-corpus/should.txt training-corpus/may.txt work/unidic/lex_3_1.csv
 	akaza-data make-dict \
-		--corpus corpus/must.txt \
-		--corpus corpus/should.txt \
-		--corpus corpus/may.txt \
+		--corpus training-corpus/must.txt \
+		--corpus training-corpus/should.txt \
+		--corpus training-corpus/may.txt \
 		--unidic work/unidic/lex_3_1.csv \
 		--vocab work/vibrato-ipadic.vocab \
 		data/SKK-JISYO.akaza \

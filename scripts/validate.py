@@ -51,7 +51,7 @@ def main() -> int:
     root = Path(__file__).resolve().parent.parent
     errors: list[str] = []
 
-    for corpus in sorted(root.glob("corpus/*.txt")):
+    for corpus in sorted(root.glob("training-corpus/*.txt")):
         errors.extend(validate_corpus(corpus))
 
     skk = root / "dict" / "SKK-JISYO.akaza"
