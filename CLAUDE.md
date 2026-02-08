@@ -99,7 +99,7 @@ marisa-trie format. Bigram entries: `愛/あい\tは/は => -0.525252`. Scores a
 ## Key Tuning Points
 
 - `training-corpus/should.txt` — Add reading→kanji pairs for conversions that the corpus statistics don't cover well (especially colloquial expressions)
-- `dict/SKK-JISYO.akaza` — Base system dictionary template
+- `dict/SKK-JISYO.akaza` — Base system dictionary template. 珍妙な変換（Wikipedia コーパスの偏りで「お題→於大」「これは→之派」のように古典漢字や稀な語が優先される場合）には、正しい複合語エントリを辞書に追加することで対処できる。
 - `CORPUS_STATS_VERSION` in Makefile — Version of pre-computed statistics to use
 
 ## Release
