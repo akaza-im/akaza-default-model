@@ -43,7 +43,7 @@ GitHub Releases で配布しています。CalVer (`YYYY.MMDD.PATCH`) を採用�
 
 ## データフォーマット
 
-### corpus/*.txt (学習コーパス)
+### training-corpus/*.txt (学習コーパス)
 
 `漢字/よみ` の形式でスペース区切り。`;; `で始まる行はコメント。
 
@@ -132,8 +132,8 @@ Akaza のデフォルトモデルは、Wikipedia/青空文庫に含まれる表�
 
 変換できない表現があった場合は、コーパスに追加することで対応できます。
 
-corpus/should.txt に追加の PR を送ってください。
-書き方は corpus/README.md に書いてあります。
+training-corpus/should.txt に追加の PR を送ってください。
+書き方は training-corpus/README.md に書いてあります。
 
 #### Wikipedia に入っているはずなのにうまく変換できない。
 

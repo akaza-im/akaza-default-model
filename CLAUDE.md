@@ -37,7 +37,7 @@ The Makefile encodes a linear data pipeline:
 
 ## Data Formats
 
-### corpus/*.txt (学習コーパス)
+### training-corpus/*.txt (学習コーパス)
 
 `漢字/よみ` のスペース区切り。`;; ` で始まる行はコメント。
 
@@ -79,7 +79,7 @@ marisa-trie format. Bigram entries: `愛/あい\tは/は => -0.525252`. Scores a
 
 ## Key Tuning Points
 
-- `corpus/should.txt` — Add reading→kanji pairs for conversions that the corpus statistics don't cover well (especially colloquial expressions)
+- `training-corpus/should.txt` — Add reading→kanji pairs for conversions that the corpus statistics don't cover well (especially colloquial expressions)
 - `dict/SKK-JISYO.akaza` — Base system dictionary template
 - `CORPUS_STATS_VERSION` in Makefile — Version of pre-computed statistics to use
 

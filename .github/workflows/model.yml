@@ -11,7 +11,7 @@ on:
     branches: [ main ]
     paths:
       - 'Makefile'
-      - 'corpus/**'
+      - 'training-corpus/**'
       - 'dict/**'
       - 'anthy-corpus/**'
       - '.github/workflows/model.yml'
