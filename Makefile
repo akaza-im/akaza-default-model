@@ -3,7 +3,7 @@ DATADIR ?= $(PREFIX)/share
 DESTDIR ?=
 MODELDIR ?= $(DESTDIR)$(DATADIR)/akaza/model/default/
 
-CORPUS_STATS_VERSION ?= v2026.0208.0
+CORPUS_STATS_VERSION ?= v2026.0210.2
 
 all: data/bigram.model \
 	 data/SKK-JISYO.akaza
@@ -16,7 +16,7 @@ work/corpus-stats/_SUCCESS:
 	mkdir -p work/
 	gh release download $(CORPUS_STATS_VERSION) \
 		--repo akaza-im/akaza-corpus-stats \
-		--pattern 'akaza-corpus-stats.tar.gz' \
+		--pattern 'akaza-corpus-stats-full.tar.gz' \
 		--output work/akaza-corpus-stats.tar.gz
 	tar xzf work/akaza-corpus-stats.tar.gz -C work/
 	rm work/akaza-corpus-stats.tar.gz
