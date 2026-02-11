@@ -6,6 +6,7 @@ MODELDIR ?= $(DESTDIR)$(DATADIR)/akaza/model/default/
 CORPUS_STATS_VERSION ?= v2026.0211.0
 
 all: data/bigram.model \
+	 data/skip_bigram.model \
 	 data/SKK-JISYO.akaza
 
 # -------------------------------------------------------------------------
@@ -49,9 +50,13 @@ data/bigram.model: work/corpus-stats/_SUCCESS training-corpus/must.txt training-
 		training-corpus/must.txt \
 		work/stats-vibrato-unigram.wordcnt.trie work/stats-vibrato-bigram.wordcnt.trie \
 		data/unigram.model data/bigram.model \
+		--src-skip-bigram=work/stats-vibrato-skip-bigram.wordcnt.trie \
+		--dst-skip-bigram=data/skip_bigram.model \
 		-v
 
 data/unigram.model: data/bigram.model
+
+data/skip_bigram.model: data/bigram.model
 
 # -------------------------------------------------------------------------
 
