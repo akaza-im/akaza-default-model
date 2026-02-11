@@ -3,7 +3,7 @@ DATADIR ?= $(PREFIX)/share
 DESTDIR ?=
 MODELDIR ?= $(DESTDIR)$(DATADIR)/akaza/model/default/
 
-CORPUS_STATS_VERSION ?= v2026.0210.2
+CORPUS_STATS_VERSION ?= v2026.0211.0
 
 all: data/bigram.model \
 	 data/SKK-JISYO.akaza
