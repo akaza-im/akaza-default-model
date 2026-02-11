@@ -3,7 +3,7 @@ DATADIR ?= $(PREFIX)/share
 DESTDIR ?=
 MODELDIR ?= $(DESTDIR)$(DATADIR)/akaza/model/default/
 
-CORPUS_STATS_VERSION ?= v2026.0211.0
+CORPUS_STATS_VERSION ?= v2026.0211.1
 
 all: data/bigram.model \
 	 data/skip_bigram.model \
