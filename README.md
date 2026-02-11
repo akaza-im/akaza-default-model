@@ -154,6 +154,7 @@ vibrato がトーカナイズに失敗してるな、と思った場合は mecab
 
 | 日付 | 再現率 | Good | Bad | 備考 |
 |---|---|---|---|---|
+| 2026-02-11 | 93.20% | 6657 | 4002 | corpus-stats v2026.0211.1: skip-bigram trie 同梱 + learn-corpus skip-bigram 学習 |
 | 2026-02-11 | 93.11% | 6615 | 4039 | skip-bigram Viterbi DP 統合 (weight=0.2)、デフォルトコスト導入 |
 | 2026-02-11 | 92.718% | 6428 | 4179 | corpus-stats v2026.0211.0: `<NUM>` トークン正規化（suffix-only）導入 |
 | 2026-02-10 | 92.755% | 6457 | 4154 | corpus-stats v2026.0210.2: CC-100 重み付き統合 (weight=0.3) |
