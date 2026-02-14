@@ -29,7 +29,10 @@ work/corpus-stats/_SUCCESS:
 
 work/unidic/unidic.zip:
 	mkdir -p work/unidic/
-	wget --no-verbose --no-clobber -O work/unidic/unidic.zip https://clrd.ninjal.ac.jp/unidic_archive/csj/3.1.1/unidic-csj-3.1.1.zip
+	gh release download unidic-mirror \
+		--repo akaza-im/akaza \
+		--pattern 'unidic-csj-3.1.1.zip' \
+		--output work/unidic/unidic.zip
 
 work/unidic/lex_3_1.csv: work/unidic/unidic.zip
 	unzip -D -o -j work/unidic/unidic.zip -d work/unidic/
