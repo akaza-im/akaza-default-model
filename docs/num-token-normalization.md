@@ -22,12 +22,17 @@ akaza の corpus-stats は Wikipedia ベースであるため、特定の数字�
 
 `akaza-data/src/utils.rs` に `normalize_num_token()` を追加:
 
-- `1匹/1ひき` → `<NUM>匹/<NUM>匹` (正規化する)
-- `100円/100えん` → `<NUM>円/<NUM>円` (正規化する)
-- `2019年/2019ねん` → `<NUM>年/<NUM>年` (正規化する)
+- `1匹/1ひき` → `<NUM>匹/<NUM>ひき` (正規化する — reading 側はかな読みを保持)
+- `100円/100えん` → `<NUM>円/<NUM>えん` (正規化する)
+- `2019年/2019ねん` → `<NUM>年/<NUM>ねん` (正規化する)
 - `1/1` → `1/1` (裸の数字は正規化しない)
 - `匹/ひき` → `匹/ひき` (数字なしは変換なし)
 - `第1回/だい1かい` → `第1回/だい1かい` (先頭が数字でなければ変換なし)
+
+surface 側は先頭の ASCII 数字を `<NUM>` に置換し漢字接尾辞をそのまま保持する。
+reading 側も先頭の ASCII 数字を `<NUM>` に置換するが、かな読みをそのまま保持する。
+これにより `<NUM>行/<NUM>ぎょう` と `<NUM>行/<NUM>こう` が区別され、
+数字の汎化と同音異義語の区別が両立する。
 
 unigram LM ビルド (`make_stats_system_unigram_lm.rs`) で wfreq パース時に
 正規化を適用し、カウントを集約。threshold フィルタは集約後に適用。
@@ -37,8 +42,27 @@ unigram LM ビルド (`make_stats_system_unigram_lm.rs`) で wfreq パース時�
 `libakaza/src/graph/graph_builder.rs` に `normalize_surface_for_lm()` を追加:
 
 ラティス構築時、unigram LM でエントリが見つからない場合にフォールバックとして
-`<NUM>` 正規化キーでの lookup を試みる。これにより、LM に `<NUM>匹/<NUM>匹` が
+`<NUM>` 正規化キーでの lookup を試みる。これにより、LM に `<NUM>匹/<NUM>ひき` が
 登録されていれば `3匹/3ひき` でもスコアを取得できる。
+
+### セグメンタ側 (複合セグメント生成)
+
+`libakaza/src/graph/segmenter.rs` の `Segmenter::build()` を拡張:
+
+数字マッチ後、後続のかなトライマッチも試行して複合セグメントを追加する。
+例えば入力 `90ぎょう` に対して、個別セグメント (`90` + `ぎょう`) に加えて
+複合セグメント (`90ぎょう`) も生成する。Viterbi が LM スコアに基づいて最適パスを選ぶ。
+
+### グラフビルダー側 (複合ノード構築)
+
+`libakaza/src/graph/graph_builder.rs` の `GraphBuilder::construct()` を拡張:
+
+`segmented_yomi` が数字+かな（例: `90ぎょう`）の場合:
+
+1. 数字部分 (`90`) とかな部分 (`ぎょう`) を分離
+2. かな部分をかな漢字辞書で検索 → `["行", "業", ...]`
+3. 候補生成: `90行` (LM lookup: `90行/90ぎょう` → fallback `<NUM>行/<NUM>ぎょう`)
+4. 漢数字候補も追加: `int2kanji(90)` → `九十` → `九十行`, `九十業`, ...
 
 ## 初回実装の問題: 裸の数字の正規化による退行
 
