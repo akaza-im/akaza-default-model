@@ -1,5 +1,8 @@
 # akaza-default-model
 
+> [!CAUTION]
+> https://github.com/akaza-im/akaza/ に統合されました。
+
 ## What's this?
 
 Akaza のデフォルトのモデルデータ及び辞書データの作成レポジトリです。
